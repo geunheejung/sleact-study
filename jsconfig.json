@@ -1,0 +1,10 @@
+{
+  "paths": { // path 변수 절대경로 비슷하게
+    "@hooks/*": ["hooks/*"],
+    "@components/*": ["components/*"],
+    "@layouts/*": ["layouts/*"],
+    "@pages/*": ["pages/*"],
+    "@utils/*": ["utils/*"],
+    "@typings/*": ["typings/*"]
+  }
+}
