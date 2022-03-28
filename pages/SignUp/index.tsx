@@ -1,9 +1,13 @@
 import React, { useCallback, useState } from 'react';
-import { Button, Error, Form, Header, Input, Label, LinkContainer, Success } from '@pages/SignUp/styles';
-import { useInput } from '@hooks/useInput';
 import axios from 'axios';
+import { Link, Navigate } from 'react-router-dom';
+import { Button, Error, Form, Header, Input, Label, LinkContainer, Success } from '@pages/SignUp/styles';
+import useInput from '@hooks/useInput';
+import useSWR from 'swr';
+import fetcher from '@utils/fetcher';
 
 const SignUp = () => {  
+  const { data, error, isValidating, mutate } = useSWR('/api/users', fetcher); 
   const [email, onChangeEmail] = useInput<string>('');
   const [nickname, onChangeNickname] = useInput<string>('');
   const [password, , setPassword] = useInput<string>('');
@@ -54,9 +58,9 @@ const SignUp = () => {
     [email, nickname, password, mismatchError],
   );
 
-  // if (userData) {
-  //   // return <Redirect to="/workspace/sleact" />;  
-  // }
+  if (data) {  
+    return <Navigate to="/workspace/channel" />;  
+  }
   
   return (
     <div id="container">
@@ -100,7 +104,7 @@ const SignUp = () => {
       </Form>
       <LinkContainer>
         이미 회원이신가요?&nbsp;
-        <a href="/login">로그인 하러가기</a>
+        <Link to="/login">로그인 하러가기</Link>        
       </LinkContainer>
     </div>
   );
