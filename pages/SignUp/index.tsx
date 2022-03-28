@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { Button, Error, Form, Header, Input, Label, LinkContainer, Success } from '@pages/SignUp/styles';
 import { useInput } from '@hooks/useInput';
+import axios from 'axios';
 
 const SignUp = () => {  
   const [email, onChangeEmail] = useInput<string>('');
@@ -8,6 +9,8 @@ const SignUp = () => {
   const [password, , setPassword] = useInput<string>('');
   const [passwordCheck, , setPasswordCheck] = useInput<string>('');
   const [mismatchError, , setMismatchError] = useInput<boolean>(false);
+  const [signUpError, setSignUpError] = useState('');
+  const [signUpSuccess, setSignUpSuccess] = useState(false);
   
   const onChangePassword = useCallback(
     (e) => {
@@ -18,7 +21,7 @@ const SignUp = () => {
   );
 
   const onChangePasswordCheck = useCallback(
-    (e) => {
+    (e) => { 
       // 함수 기준으로 외부 변수일 경우 deps에 서술해야한다. 값이 변경되지 않는것은 서술 X
       setPasswordCheck(e.target.value);
       setMismatchError(e.target.value !== password);      
@@ -29,11 +32,24 @@ const SignUp = () => {
   const onSubmit = useCallback(
     (e) => {
       e.preventDefault();    
-      if (mismatchError) return;
+      if (mismatchError || !nickname) return;
 
-      console.log(
-        email, 'email', nickname, 'nickname', password, 'password', mismatchError, 'mismatchError'
-      )
+      setSignUpError('')
+      setSignUpSuccess(false);
+            
+      axios.post('/api/users', {
+         email,
+         nickname,
+         password
+       })
+       .then(res => {
+         console.log(res, 'res');
+         setSignUpSuccess(true);
+       })
+       .catch(err => {
+        setSignUpError(err.response.data);
+       })
+       .finally(() => {})
     },
     [email, nickname, password, mismatchError],
   );
@@ -42,7 +58,6 @@ const SignUp = () => {
   //   // return <Redirect to="/workspace/sleact" />;  
   // }
   
-  console.log(mismatchError)
   return (
     <div id="container">
       <Header>Sleact</Header>
@@ -78,8 +93,8 @@ const SignUp = () => {
           </div>
           {mismatchError && <Error>비밀번호가 일치하지 않습니다.</Error>}
           {!nickname && <Error>닉네임을 입력해주세요.</Error>}
-          {/* {signUpError && <Error>이미 가입된 이메일입니다.</Error>} */}
-          {/* {signUpSuccess && <Success>회원가입되었습니다! 로그인해주세요.</Success>} */}
+          {signUpError && <Error>{signUpError}</Error>}
+          {signUpSuccess && <Success>회원가입되었습니다! 로그인해주세요.</Success>}
         </Label>
         <Button type="submit">회원가입</Button>
       </Form>
