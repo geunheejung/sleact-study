@@ -1,12 +1,12 @@
 import React from 'react';
 import Workspace from '@layouts/WorkSpace';
 
-const Channel = () => {
+const DirectMessage = () => {
   return (
     <div>
-        Channel
+      Direct Message
     </div>
   )
 }
 
-export default Channel;
+export default DirectMessage;

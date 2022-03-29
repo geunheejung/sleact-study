@@ -42,7 +42,7 @@ const LogIn = () => {
   //   return <div>로딩중...</div>;
   // }
 
-  if (data) {
+  if (data) {    
     return <Navigate to="/workspace/channel" />;
   }
 

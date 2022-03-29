@@ -1,7 +1,7 @@
 import fetcher from '@utils/fetcher';
 import axios from 'axios';
 import React, { useCallback, useState } from 'react';
-import { Link, Navigate, Routes, Route } from 'react-router-dom';
+import { Link, Navigate, Routes, Route, Outlet } from 'react-router-dom';
 import useSWR, { useSWRConfig } from 'swr';
 import gravatar from 'gravatar';
 import {
@@ -24,10 +24,15 @@ import { Label, Button, Input } from '@pages/SignUp/styles';
 import Menu from '@components/Menu';
 import Modal from '@components/Modal';
 import useInput from '@hooks/useInput';
+import loadable from '@loadable/component';
+import { IUser } from '@typings/db';
+import {toast} from 'react-toastify';
 
-const Workspace: React.FC = ({ children }) => {
-  const { mutate } = useSWRConfig();
-  const { data: userData, error: loginError } = useSWR('/api/users', fetcher);
+const Channel = loadable(() => import('@pages/Channel'));
+const DirectMessage = loadable(() => import('@pages/DirectMessage'));
+
+const Workspace: React.FC = ({ children }) => {  
+  const { data: userData, error: loginError, isValidating, mutate } = useSWR<IUser>('/api/users', fetcher);
 
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showWorkspaceModal, setShowWorkspaceModal] = useState(false);
@@ -35,12 +40,19 @@ const Workspace: React.FC = ({ children }) => {
   const [newWorkspace, onChangeNewWorkspace, setNewWorkpsace] = useInput('');
   const [newUrl, onChangeNewUrl, setNewUrl] = useInput('');
 
+  const initCreateWorkspaceModal = () => {
+    mutate();
+    setShowCreateWorkspaceModal(false);
+    setNewWorkpsace('');
+    setNewUrl('');
+  }
+
   const onLogout = useCallback(() => {  
     axios.post(`/api/users/logout`, null, {
       withCredentials: true,
     })
     .then((res) => {
-      mutate('/api/users', undefined);
+      mutate();
     });  
   }, [])
 
@@ -57,21 +69,36 @@ const Workspace: React.FC = ({ children }) => {
     setShowUserMenu(false);
   }, [])
 
-  const onClickCreateWorkspace = useCallback(() => {}, []);
+  const onClickCreateWorkspace = useCallback(() => {
+    setShowCreateWorkspaceModal(true);
+  }, []);
 
   const onClickInviteWorkspace = useCallback(() => {}, []);
   const onClickAddChannel = useCallback(() => {}, []);
   const onCloseModal = useCallback(() => {
-    setShowCreateWorkspaceModal(prev => !prev);
+    setShowCreateWorkspaceModal(false);
   }, []);
-  const onCreateWorkspace = useCallback(() => {}, []);
+  const onCreateWorkspace = useCallback((e) => {
+    e.preventDefault();
+    if (newWorkspace.length <= 0 || newUrl.length <= 0) return;
+    axios
+      .post('/api/workspaces', {
+        workspace: newWorkspace,
+        url: newUrl,
+      })
+      .then(() => {        
+        initCreateWorkspaceModal(); 
+        
+      })
+      .catch(error => {
+        toast.error(error.response?.data, { position: 'bottom-center' });
+      })
+  }, [newWorkspace, newUrl]);
 
-  if (!userData) {
+  if (!userData) {    
     return <Navigate to="/login" />;
   }
 
-  console.log('userData =>', userData);
-  
   return (
     <div>
       <Header>
@@ -105,8 +132,8 @@ const Workspace: React.FC = ({ children }) => {
         </RightMenu>
       </Header> 
       <WorkspaceWrapper> 
-        <Workspaces>
-          {userData?.Workspaces.map((ws: any) => {
+        <Workspaces>          
+          {userData.hasOwnProperty('Workspaces') && userData.Workspaces.map((ws) => {
             return (
               <Link key={ws.id} to={`/workspace/${123}/channel/일반`}>
                 <WorkspaceButton>{ws.name.slice(0, 1).toUpperCase()}</WorkspaceButton>
@@ -138,8 +165,8 @@ const Workspace: React.FC = ({ children }) => {
         </Channels>
         <Chats>
           <Routes>
-            <Route path="/workspace/:workspace/channel/:channel" element={<div />} />
-            <Route path="/workspace/:workspace/dm/:id" element={<div />} />    
+            <Route path="channel" element={<Channel />} />
+            <Route path="dm" element={<DirectMessage />} />    
           </Routes>
         </Chats> 
       </WorkspaceWrapper>     
