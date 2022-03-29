@@ -19,8 +19,7 @@ const LogIn = () => {
   const onSubmit = useCallback(
     (e: ChangeEvent<HTMLFormElement>) => {
       e.preventDefault();
-      setLogInError(false);
-      
+      setLogInError(false);       
       const data = {
         email, password,
       };
@@ -29,7 +28,8 @@ const LogIn = () => {
             withCredentials: true, 
           })
           .then((response) => {
-            mutate('/api/users');
+            // 2번째 인자는 서버 요청을 보내서 데이터를 갱신할 지, 아니면 헌재 데이터를 갱신할지.
+            mutate(response.data, true); // swr 글로벌 데이터 갱신
           })
           .catch((error) => {
             setLogInError(error.response?.data?.statusCode === 401);
@@ -51,7 +51,6 @@ const LogIn = () => {
   //   console.log('로그인됨', userData);
   //   return <Redirect to="/workspace/sleact/channel/일반" />;
   // }
-  console.log('data', data);
 
   return (
     <div id="container">
