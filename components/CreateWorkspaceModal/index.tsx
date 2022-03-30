@@ -8,32 +8,54 @@ import { toast } from 'react-toastify';
 import { Props } from '@components/Modal';
 
 interface _Props extends Props {
-  success?: () => void
+  success: () => void
 }
 
-const CreateChannelModal: React.VFC<_Props> = ({ success, ...modalProps }) => {
+const CreateWorkspaceModal: React.VFC<_Props> = ({ success, ...modalProps }) => {
   const { mutate } = useSWRConfig();  
-  const [newChannel, onChangeNewChannel] = useInput('');  
+  const [newWorkspace, onChangeNewWorkspace, setNewWorkpsace] = useInput('');
+  const [newUrl, onChangeNewUrl, setNewUrl] = useInput('');
 
-  const handleSubmit = useCallback(() => {
-    
-  }, [newChannel]);
+  const initCreateWorkspaceModal = () => {        
+    setNewWorkpsace('');
+    setNewUrl('');
+    modalProps.onCloseModal();
+  }
+
+  const onCreateWorkspace = useCallback((e) => {
+    e.preventDefault();
+    if (newWorkspace.length <= 0 || newUrl.length <= 0) return;
+    axios
+      .post('/api/workspaces', {
+        workspace: newWorkspace,
+        url: newUrl,
+      })
+      .then(() => {        
+        mutate('/api/users');        
+        initCreateWorkspaceModal();         
+      })
+      .catch(error => {
+        toast.error(error.response?.data, { position: 'bottom-center' });
+      })
+  }, [newWorkspace, newUrl]);
+  
+  console.log(modalProps)
 
   return (
     <Modal {...modalProps}>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={onCreateWorkspace}>
         <Label id="workspace-label">
-          <span>채널</span>
-          <Input 
-            id="workspace" 
-            value={newChannel} 
-            onChange={onChangeNewChannel} 
-          />
-        </Label>        
+          <span>워크스페이스 이름</span>
+          <Input id="workspace" value={newWorkspace} onChange={onChangeNewWorkspace} />
+        </Label>
+        <Label id="workspace-url-label">
+          <span>워크스페이스 url</span>
+          <Input id="workspace" value={newUrl} onChange={onChangeNewUrl} />
+        </Label>
         <Button type="submit">생성하기</Button>
       </form>
     </Modal>
   )
 }
 
-export default CreateChannelModal;
+export default CreateWorkspaceModal;

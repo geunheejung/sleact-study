@@ -15,7 +15,10 @@ const App = () => (
     />
     <Route path="login" element={<Login />} />
     <Route path="signup" element={<SignUp />} />
-    <Route path="workspace/*" element={<Workspace />} />
+    <Route path="workspace/:workspaceName" element={<Workspace />}>
+      <Route path="channel/:channelName" element={<Workspace />} />
+      <Route path="dm/:dmId" element={<Workspace />} />
+    </Route>
     
   </Routes>
 )

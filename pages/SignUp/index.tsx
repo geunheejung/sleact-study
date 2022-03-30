@@ -58,8 +58,8 @@ const SignUp = () => {
     [email, nickname, password, mismatchError],
   );
 
-  if (data) {  
-    return <Navigate to="/workspace/channel" />;  
+  if (data) {    
+    return <Navigate to="/workspace/sleact/channel/일반" />;
   }
   
   return (

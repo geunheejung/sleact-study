@@ -6,56 +6,50 @@ import React, { useCallback, useState } from "react";
 import { useSWRConfig } from 'swr';
 import { toast } from 'react-toastify';
 import { Props } from '@components/Modal';
+import { useParams } from "react-router";
 
 interface _Props extends Props {
-  success: () => void
+  success?: () => void
 }
 
-const CreateWorkspaceModal: React.VFC<_Props> = ({ success, ...modalProps }) => {
+const CreateChannelModal: React.VFC<_Props> = ({ success, ...modalProps }) => {
   const { mutate } = useSWRConfig();  
-  const [newWorkspace, onChangeNewWorkspace, setNewWorkpsace] = useInput('');
-  const [newUrl, onChangeNewUrl, setNewUrl] = useInput('');
-
-  const initCreateWorkspaceModal = () => {        
-    setNewWorkpsace('');
-    setNewUrl('');
-    modalProps.onCloseModal();
-  }
-
-  const onCreateWorkspace = useCallback((e) => {
-    e.preventDefault();
-    if (newWorkspace.length <= 0 || newUrl.length <= 0) return;
-    axios
-      .post('/api/workspaces', {
-        workspace: newWorkspace,
-        url: newUrl,
-      })
-      .then(() => {        
-        mutate('/api/users');        
-        initCreateWorkspaceModal();         
-      })
-      .catch(error => {
-        toast.error(error.response?.data, { position: 'bottom-center' });
-      })
-  }, [newWorkspace, newUrl]);
+  const [newChannel, onChangeNewChannel, setChangeNewChannel] = useInput('');   
+  const { workspaceName } = useParams<{workspaceName: string, channelName: string}>();
   
-  console.log(modalProps)
+
+  const handleSubmit = useCallback((e) => {    
+    e.preventDefault();
+
+    axios.post(
+      `/api/workspaces/${workspaceName}/channels`, 
+      { name: newChannel }, { withCredentials: true }
+    )
+    .then(() => {          
+      setChangeNewChannel('');
+      mutate(`/api/workspaces/${workspaceName}/channels`);
+      modalProps.onCloseModal();      
+    })
+    .catch((error) => {    
+      toast.error(error.response?.data, { position: 'bottom-center' });
+    })
+  }, [newChannel]);  
 
   return (
     <Modal {...modalProps}>
-      <form onSubmit={onCreateWorkspace}>
+      <form onSubmit={handleSubmit}>
         <Label id="workspace-label">
-          <span>워크스페이스 이름</span>
-          <Input id="workspace" value={newWorkspace} onChange={onChangeNewWorkspace} />
-        </Label>
-        <Label id="workspace-url-label">
-          <span>워크스페이스 url</span>
-          <Input id="workspace" value={newUrl} onChange={onChangeNewUrl} />
-        </Label>
+          <span>채널</span>
+          <Input 
+            id="workspace" 
+            value={newChannel} 
+            onChange={onChangeNewChannel} 
+          />
+        </Label>        
         <Button type="submit">생성하기</Button>
       </form>
     </Modal>
   )
 }
 
-export default CreateWorkspaceModal;
+export default CreateChannelModal;

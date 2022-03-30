@@ -1,7 +1,7 @@
 import fetcher from '@utils/fetcher';
 import axios from 'axios';
 import React, { useCallback, useState } from 'react';
-import { Link, Navigate, Routes, Route, Outlet } from 'react-router-dom';
+import { Link, Navigate, Routes, Route, Outlet, useParams } from 'react-router-dom';
 import useSWR, { useSWRConfig } from 'swr';
 import gravatar from 'gravatar';
 import {
@@ -23,18 +23,23 @@ import {
 import { Label, Button, Input } from '@pages/SignUp/styles';
 import Menu from '@components/Menu';
 import Modal from '@components/Modal';
-import CreateWorkspaceModal from '@components/CreateWorkspaceModal';
+import CreateWorkspaceModal from '@components/CreateChannelModal';
 import useInput from '@hooks/useInput';
 import loadable from '@loadable/component';
-import { IUser } from '@typings/db';
+import { IChannel, IUser } from '@typings/db';
 import {toast} from 'react-toastify';
-import CreateChannelModal from '@components/CreateWorkspaceModal';
+import CreateChannelModal from '@components/CreateChannelModal';
 
 const Channel = loadable(() => import('@pages/Channel'));
 const DirectMessage = loadable(() => import('@pages/DirectMessage'));
 
 const Workspace: React.VFC = () => {  
+  const { workspaceName } = useParams<{workspaceName: string}>();
   const { data: userData, error: loginError, isValidating, mutate } = useSWR<IUser>('/api/users', fetcher);
+  const { data: channelData } = useSWR<IChannel[]>(
+    userData ? `/api/workspaces/${workspaceName}/channels` : null,
+    fetcher 
+  );    
 
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showWorkspaceModal, setShowWorkspaceModal] = useState(false);
@@ -128,7 +133,7 @@ const Workspace: React.VFC = () => {
         <Channels>
           <WorkspaceName onClick={toggleWorkspaceModal}>
             Sleact
-          </WorkspaceName>
+          </WorkspaceName>          
           <MenuScroll>
             <Menu 
               show={showWorkspaceModal}
@@ -143,13 +148,18 @@ const Workspace: React.VFC = () => {
               </WorkspaceModal>
             </Menu>
             {/* <ChannelList /> */}
+            {channelData&& channelData.map((row) => (
+              <div key={row.name}>
+                {row.name}
+              </div>
+            ))}
             {/* <DMList /> */}
           </MenuScroll>
         </Channels>
         <Chats>
           <Routes>
-            <Route path="channel" element={<Channel />} />
-            <Route path="dm" element={<DirectMessage />} />    
+            <Route path="channel/:channelName" element={<Channel />} />
+            <Route path="dm/:id" element={<DirectMessage />} />                
           </Routes>
         </Chats> 
       </WorkspaceWrapper>     
