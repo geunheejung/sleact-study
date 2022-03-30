@@ -23,30 +23,24 @@ import {
 import { Label, Button, Input } from '@pages/SignUp/styles';
 import Menu from '@components/Menu';
 import Modal from '@components/Modal';
+import CreateWorkspaceModal from '@components/CreateWorkspaceModal';
 import useInput from '@hooks/useInput';
 import loadable from '@loadable/component';
 import { IUser } from '@typings/db';
 import {toast} from 'react-toastify';
+import CreateChannelModal from '@components/CreateWorkspaceModal';
 
 const Channel = loadable(() => import('@pages/Channel'));
 const DirectMessage = loadable(() => import('@pages/DirectMessage'));
 
-const Workspace: React.FC = ({ children }) => {  
+const Workspace: React.VFC = () => {  
   const { data: userData, error: loginError, isValidating, mutate } = useSWR<IUser>('/api/users', fetcher);
 
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showWorkspaceModal, setShowWorkspaceModal] = useState(false);
+  const [showCreateChannelModal, setShowCreateChannelModal] = useState(false);
   const [showCreateWorkspaceModal, setShowCreateWorkspaceModal] = useState(false);
-  const [newWorkspace, onChangeNewWorkspace, setNewWorkpsace] = useInput('');
-  const [newUrl, onChangeNewUrl, setNewUrl] = useInput('');
-
-  const initCreateWorkspaceModal = () => {
-    mutate();
-    setShowCreateWorkspaceModal(false);
-    setNewWorkpsace('');
-    setNewUrl('');
-  }
-
+  
   const onLogout = useCallback(() => {  
     axios.post(`/api/users/logout`, null, {
       withCredentials: true,
@@ -74,26 +68,15 @@ const Workspace: React.FC = ({ children }) => {
   }, []);
 
   const onClickInviteWorkspace = useCallback(() => {}, []);
-  const onClickAddChannel = useCallback(() => {}, []);
+  
+  const onClickAddChannel = useCallback(() => {
+    setShowCreateChannelModal(true);
+  }, []);
+
   const onCloseModal = useCallback(() => {
     setShowCreateWorkspaceModal(false);
+    setShowCreateChannelModal(false);
   }, []);
-  const onCreateWorkspace = useCallback((e) => {
-    e.preventDefault();
-    if (newWorkspace.length <= 0 || newUrl.length <= 0) return;
-    axios
-      .post('/api/workspaces', {
-        workspace: newWorkspace,
-        url: newUrl,
-      })
-      .then(() => {        
-        initCreateWorkspaceModal(); 
-        
-      })
-      .catch(error => {
-        toast.error(error.response?.data, { position: 'bottom-center' });
-      })
-  }, [newWorkspace, newUrl]);
 
   if (!userData) {    
     return <Navigate to="/login" />;
@@ -170,22 +153,14 @@ const Workspace: React.FC = ({ children }) => {
           </Routes>
         </Chats> 
       </WorkspaceWrapper>     
-      <Modal
+      <CreateWorkspaceModal         
         show={showCreateWorkspaceModal}
         onCloseModal={onCloseModal}
-      >
-        <form onSubmit={onCreateWorkspace}>
-          <Label id="workspace-label">
-            <span>워크스페이스 이름</span>
-            <Input id="workspace" value={newWorkspace} onChange={onChangeNewWorkspace} />
-          </Label>
-          <Label id="workspace-url-label">
-            <span>워크스페이스 url</span>
-            <Input id="workspace" value={newUrl} onChange={onChangeNewUrl} />
-          </Label>
-          <Button type="submit">생성하기</Button>
-        </form>
-      </Modal>
+      />
+      <CreateChannelModal 
+        show={showCreateChannelModal}
+        onCloseModal={onCloseModal}
+      />      
     </div>
   )
 }
