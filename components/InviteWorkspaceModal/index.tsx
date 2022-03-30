@@ -12,44 +12,45 @@ interface _Props extends Props {
   success?: () => void
 }
 
-const CreateChannelModal: React.VFC<_Props> = ({ success, ...modalProps }) => {
+const InviteWorkspaceModal: React.VFC<_Props> = ({ success, ...modalProps }) => {
   const { mutate } = useSWRConfig();  
-  const [newChannel, onChangeNewChannel, setChangeNewChannel] = useInput('');   
+  const [newMember, onChangeNewMember, setNewMember] = useInput('');   
   const { workspaceName } = useParams<{workspaceName: string, channelName: string}>();
   
-
-  const handleSubmit = useCallback((e) => {    
+  const handleSubmit = useCallback((e) => {
     e.preventDefault();
 
-    axios.post(
-      `/api/workspaces/${workspaceName}/channels`, 
-      { name: newChannel }, { withCredentials: true }
-    )
-    .then(() => {          
-      setChangeNewChannel('');
-      mutate(`/api/workspaces/${workspaceName}/channels`);
-      modalProps.onCloseModal();      
-    })
-    .catch((error) => {    
-      toast.error(error.response?.data, { position: 'bottom-center' });
-    })
-  }, [newChannel]);  
+    if (newMember.length <= 0) return;
 
+    axios.post(
+      `/api/workspaces/${workspaceName}/members`, 
+      { email: newMember }
+    )
+    .then((res) => {
+      mutate(`/api/workspaces/${workspaceName}/channels`);
+      modalProps.onCloseModal();
+      setNewMember('');
+    })
+    .catch((error) => {
+      toast.error(error.response?.data, { position: 'bottom-center' });
+    });
+  }, [ newMember ])
+  
   return (
     <Modal {...modalProps}>
       <form onSubmit={handleSubmit}>
-        <Label id="channel-label">
-          <span>채널</span>
+        <Label id="member-label">
+          <span>이메일</span>
           <Input 
-            id="channel" 
-            value={newChannel} 
-            onChange={onChangeNewChannel} 
+            id="member" 
+            value={newMember} 
+            onChange={onChangeNewMember} 
           />
         </Label>        
-        <Button type="submit">생성하기</Button>
+        <Button type="submit">초대하기</Button>
       </form>
     </Modal>
   )
 }
 
-export default CreateChannelModal;
+export default InviteWorkspaceModal;

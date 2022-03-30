@@ -29,6 +29,7 @@ import loadable from '@loadable/component';
 import { IChannel, IUser } from '@typings/db';
 import {toast} from 'react-toastify';
 import CreateChannelModal from '@components/CreateChannelModal';
+import InviteWorkspaceModal from '@components/InviteWorkspaceModal';
 
 const Channel = loadable(() => import('@pages/Channel'));
 const DirectMessage = loadable(() => import('@pages/DirectMessage'));
@@ -45,6 +46,7 @@ const Workspace: React.VFC = () => {
   const [showWorkspaceModal, setShowWorkspaceModal] = useState(false);
   const [showCreateChannelModal, setShowCreateChannelModal] = useState(false);
   const [showCreateWorkspaceModal, setShowCreateWorkspaceModal] = useState(false);
+  const [showInviteWorkspaceModal, setShowInviteWorkspaceModal] = useState(false);
   
   const onLogout = useCallback(() => {  
     axios.post(`/api/users/logout`, null, {
@@ -68,19 +70,14 @@ const Workspace: React.VFC = () => {
     setShowUserMenu(false);
   }, [])
 
-  const onClickCreateWorkspace = useCallback(() => {
-    setShowCreateWorkspaceModal(true);
-  }, []);
-
-  const onClickInviteWorkspace = useCallback(() => {}, []);
-  
-  const onClickAddChannel = useCallback(() => {
-    setShowCreateChannelModal(true);
-  }, []);
+  const onClickCreateWorkspace = useCallback(() => { setShowCreateWorkspaceModal(true); }, []);
+  const onClickInviteWorkspace = useCallback(() => { setShowInviteWorkspaceModal(true) }, []);  
+  const onClickAddChannel = useCallback(() => { setShowCreateChannelModal(true); }, []);
 
   const onCloseModal = useCallback(() => {
     setShowCreateWorkspaceModal(false);
     setShowCreateChannelModal(false);
+    setShowInviteWorkspaceModal(false);
   }, []);
 
   if (!userData) {    
@@ -171,6 +168,10 @@ const Workspace: React.VFC = () => {
         show={showCreateChannelModal}
         onCloseModal={onCloseModal}
       />      
+      <InviteWorkspaceModal 
+        show={showInviteWorkspaceModal}
+        onCloseModal={onCloseModal}
+      />
     </div>
   )
 }
