@@ -20,27 +20,32 @@ import {
   Workspaces,
   WorkspaceWrapper,
 } from '@layouts/WorkSpace/styles';
-import { Label, Button, Input } from '@pages/SignUp/styles';
 import Menu from '@components/Menu';
-import Modal from '@components/Modal';
 import CreateWorkspaceModal from '@components/CreateChannelModal';
-import useInput from '@hooks/useInput';
 import loadable from '@loadable/component';
 import { IChannel, IUser } from '@typings/db';
-import {toast} from 'react-toastify';
 import CreateChannelModal from '@components/CreateChannelModal';
 import InviteWorkspaceModal from '@components/InviteWorkspaceModal';
+import ChannelList from '@components/ChannelList';
+import DMList from '@components/DMList';
 
 const Channel = loadable(() => import('@pages/Channel'));
 const DirectMessage = loadable(() => import('@pages/DirectMessage'));
 
 const Workspace: React.VFC = () => {  
-  const { workspaceName } = useParams<{workspaceName: string}>();
-  const { data: userData, error: loginError, isValidating, mutate } = useSWR<IUser>('/api/users', fetcher);
+  const { workspaceName, channelName } = useParams<{workspaceName: string, channelName: string}>();
+  const { data: userData, mutate: userMutate } = useSWR<IUser>(
+    '/api/users', 
+    fetcher
+  );
   const { data: channelData } = useSWR<IChannel[]>(
     userData ? `/api/workspaces/${workspaceName}/channels` : null,
     fetcher 
   );    
+  const { data: memberData }  = useSWR(
+    userData ? `/api/workspaces/${workspaceName}/members` : null, 
+    fetcher
+  );
 
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showWorkspaceModal, setShowWorkspaceModal] = useState(false);
@@ -53,7 +58,7 @@ const Workspace: React.VFC = () => {
       withCredentials: true,
     })
     .then((res) => {
-      mutate();
+      userMutate();
     });  
   }, [])
 
@@ -144,13 +149,8 @@ const Workspace: React.VFC = () => {
                 <button onClick={onLogout}>로그아웃</button>
               </WorkspaceModal>
             </Menu>
-            {/* <ChannelList /> */}
-            {channelData&& channelData.map((row) => (
-              <div key={row.name}>
-                {row.name}
-              </div>
-            ))}
-            {/* <DMList /> */}
+            <ChannelList />           
+            <DMList />
           </MenuScroll>
         </Channels>
         <Chats>

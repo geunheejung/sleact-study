@@ -15,7 +15,7 @@ interface _Props extends Props {
 const InviteWorkspaceModal: React.VFC<_Props> = ({ success, ...modalProps }) => {
   const { mutate } = useSWRConfig();  
   const [newMember, onChangeNewMember, setNewMember] = useInput('');   
-  const { workspaceName, channelName } = useParams<{workspaceName: string, channelName: string}>();
+  const { workspaceName } = useParams<{workspaceName: string, channelName: string}>();
   
   const handleSubmit = useCallback((e) => {
     e.preventDefault();
@@ -23,11 +23,11 @@ const InviteWorkspaceModal: React.VFC<_Props> = ({ success, ...modalProps }) => 
     if (newMember.length <= 0) return;
 
     axios.post(
-      `/api/workspaces/${workspaceName}/channels/${channelName}/members`, 
+      `/api/workspaces/${workspaceName}/members`, 
       { email: newMember }
     )
     .then((res) => {
-      mutate(`/api/workspaces/${workspaceName}/members`);
+      mutate(`/api/workspaces/${workspaceName}/channels`);
       modalProps.onCloseModal();
       setNewMember('');
     })
@@ -39,10 +39,10 @@ const InviteWorkspaceModal: React.VFC<_Props> = ({ success, ...modalProps }) => 
   return (
     <Modal {...modalProps}>
       <form onSubmit={handleSubmit}>
-        <Label id="channel-member-label">
-          <span>채널 멤버 초대</span>
+        <Label id="member-label">
+          <span>이메일</span>
           <Input 
-            id="channel-member" 
+            id="member" 
             value={newMember} 
             onChange={onChangeNewMember} 
           />
