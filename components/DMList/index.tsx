@@ -16,6 +16,7 @@ const DMList: React.FC= () => {
     userData ? `/api/workspaces/${workspaceName}/members` : null, 
     fetcher
   );
+  
   return (
     <>
       <CollapseList title="Direct Messages">
