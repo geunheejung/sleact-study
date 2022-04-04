@@ -1,27 +1,44 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect, useRef } from 'react'
 import { ChatArea, Form, MentionsTextarea, SendButton, Toolbox } from '@components/ChatBox/styles';
 import { Mention } from 'react-mentions';
+import autosize from 'autosize';
 
 interface Props {
-  chat: String  
+  chat: string;
+  // placeholder: string;
+  onSubmitForm: (e: any) => void;
+  onChangeChat: (e: any) => void;  
 }
 
-const ChatBox: React.VFC<Props> = ({ chat }) => {
-  const handleSubmit = useCallback((e) => {
-    e.preventDefault();
+const ChatBox: React.VFC<Props> = ({ chat, onSubmitForm, onChangeChat }) => {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  useEffect(() => {
+    if (textareaRef.current) {
+      autosize(textareaRef.current);
+    }
   }, []);
+  
+
+  const onKeydownChat = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter') {
+      if (!e.shiftKey) {
+        e.preventDefault();
+        onSubmitForm(e);
+      }
+    }
+  }, [onSubmitForm]);  
 
   return (
     <ChatArea>
-      <Form onSubmit={handleSubmit}>
-        <MentionsTextarea
+      <Form onSubmit={onSubmitForm}>
+        <MentionsTextarea      
           id="editor-chat"
-          // value={chat}
-          // onChange={onChangeChat}
-          // onKeyPress={onKeydownChat}
+          value={chat}
+          onChange={onChangeChat}
+          onKeyPress={onKeydownChat}
           // placeholder={placeholder}
-          // inputRef={textareaRef}
-          allowSuggestionsAboveCursor
+          inputRef={textareaRef}
+          // allowSuggestionsAboveCursor 
         >
           <Mention
             appendSpaceOnAdd

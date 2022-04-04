@@ -1,6 +1,6 @@
 import fetcher from '@utils/fetcher';
 import axios from 'axios';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Link, Navigate, Routes, Route, Outlet, useParams } from 'react-router-dom';
 import useSWR, { useSWRConfig } from 'swr';
 import gravatar from 'gravatar';
@@ -28,6 +28,7 @@ import CreateChannelModal from '@components/CreateChannelModal';
 import InviteWorkspaceModal from '@components/InviteWorkspaceModal';
 import ChannelList from '@components/ChannelList';
 import DMList from '@components/DMList';
+import useSocket from '@hooks/useSocket';
 
 const Channel = loadable(() => import('@pages/Channel'));
 const DirectMessage = loadable(() => import('@pages/DirectMessage'));
@@ -52,6 +53,24 @@ const Workspace: React.VFC = () => {
   const [showCreateChannelModal, setShowCreateChannelModal] = useState(false);
   const [showCreateWorkspaceModal, setShowCreateWorkspaceModal] = useState(false);
   const [showInviteWorkspaceModal, setShowInviteWorkspaceModal] = useState(false);
+
+  const [ socket, disconnect ] = useSocket(workspaceName);
+
+  useEffect(() => {
+    if (channelData && userData && socket) {
+      
+      socket.emit('login', { id: userData.id, channels: channelData.map(v => v.id) });
+      console.log(socket);
+      
+    }
+  }, [channelData, userData, socket])
+
+  useEffect(() => {
+    return () => {
+      disconnect();
+    }
+  }, [workspaceName, disconnect]);
+  
   
   const onLogout = useCallback(() => {  
     axios.post(`/api/users/logout`, null, {

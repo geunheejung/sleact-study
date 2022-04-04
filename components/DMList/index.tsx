@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import CollapseList from '@components/CollapseList';
 import useSWR from 'swr';
 import fetcher from '@utils/fetcher';
 import { IUser } from '@typings/db';
 import { NavLink, useParams } from 'react-router-dom';
+import useSocket from '@hooks/useSocket';
 
 const DMList: React.FC= () => {     
   const { workspaceName, channelName } = useParams<{workspaceName: string, channelName: string}>(); 
@@ -16,6 +17,20 @@ const DMList: React.FC= () => {
     userData ? `/api/workspaces/${workspaceName}/members` : null, 
     fetcher
   );
+  const [socket] = useSocket(workspaceName);
+
+  useEffect(() => {
+    socket?.on('onlineList', (data: number[]) => {
+      setOnlineList(data);
+    });
+    // socket?.on('dm', onMessage);
+    // console.log('socket on dm', socket?.hasListeners('dm'), socket);
+    return () => {
+      // socket?.off('dm', onMessage);
+      // console.log('socket off dm', socket?.hasListeners('dm'));
+      socket?.off('onlineList');
+    };
+  }, [socket]);
   
   return (
     <>

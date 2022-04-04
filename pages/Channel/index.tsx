@@ -1,11 +1,26 @@
-import React from 'react';
-import Workspace from '@layouts/WorkSpace';
+import React, { useCallback } from 'react';
+import { Container, Header } from '@pages/Channel/styles';
+import ChatBox from '@components/ChatBox';
+import useInput from '@hooks/useInput';
 
 const Channel = () => {
+  const [ chat, onChangeChat ] = useInput('');
+
+  const onSubmitForm = useCallback((e) => {
+    e.preventDefault();    
+  }, [chat]);
+  
   return (
-    <div>
-        Channel
-    </div>
+    <Container>
+      <Header>
+        채널
+      </Header>
+      <ChatBox 
+        chat={chat}
+        onSubmitForm={onSubmitForm}
+        onChangeChat={onChangeChat}
+      />
+    </Container>
   )
 }
 
