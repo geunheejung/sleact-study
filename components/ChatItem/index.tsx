@@ -16,10 +16,11 @@ const Chat: React.VFC<Props> = ({ data }) => {
     createdAt, 
     Sender: user,     
   } = data;
+  const { workspaceName, dmId } = useParams<{workspaceName: string, dmId: string}>(); 
   
   const result = useMemo(() => {
     const decorator = (match: string, index: number) => {
-      const { workspaceName, dmId } = useParams<{workspaceName: string, dmId: string}>(); 
+      
   
       const arr: string[] | null = match.match(/@\[(.+?)]\((\d+?)\)/)!;
       if (arr) {

@@ -1,21 +1,16 @@
 import React, { useCallback, useRef } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
-import { ChatZone, Section } from '@components/ChatList/styles';
+import { ChatZone, Section, StickyHeader } from '@components/ChatList/styles';
 import { IDM } from '@typings/db';
 import ChatItem from '@components/ChatItem';
 
 interface Props {
-  chatData: IDM[]
+  chatSections: { [key: string]: IDM[] };
 }
 
-const ChatList: React.VFC<Props> = ({ chatData }) => {   
+const ChatList: React.VFC<Props> = ({ chatSections }) => {   
   const scrollBarRef = useRef(null);
-  const onScroll = useCallback(
-    () => {
-      
-    },
-    [],
-  );
+  const onScroll = useCallback(() => {}, []);
    
   return (
     <ChatZone>
@@ -23,10 +18,19 @@ const ChatList: React.VFC<Props> = ({ chatData }) => {
         autoHide 
         ref={scrollBarRef} 
         onScrollFrame={onScroll}           
-      >       
-        <Section>
-          {chatData.map((chat, index) => <ChatItem key={index} data={chat} />)}        
-        </Section> 
+      >   
+        {
+          Object.entries(chatSections).map(([ date, chats ], index) => (
+            <Section className={`section-${date}`} key={date}>
+              <StickyHeader>
+                <button>{date}</button>
+              </StickyHeader>
+              {chats.map(chat => (
+                <ChatItem key={chat.id} data={chat} />
+              ))}
+            </Section>            
+          ))
+        }                    
       </Scrollbars>
     </ChatZone>
   )
