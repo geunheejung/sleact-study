@@ -25,10 +25,10 @@ const DirectMessage = () => {
   const PAGE_SIZE = 20;
 
   const { data: chatData, mutate: mutateChat } = useSWR<IDM[]>(
-    `/api/workspaces/${workspaceName}/dm/${dmId}/chats?perPage=${PAGE_SIZE}&page=${1}`, 
+    `/api/workspaces/${workspaceName}/dms/${dmId}/chats?perPage=${PAGE_SIZE}&page=${1}`, 
     fetcher
-  );
-
+  );  
+  
   const [ chat, onChangeChat, setChat ] = useInput('');
 
   const onSubmitForm = useCallback((e) => {
@@ -46,6 +46,9 @@ const DirectMessage = () => {
 
   }, [chat]);
 
+  console.log(chatData, 'chatData');
+  
+
   if (!userData || !myData) return null;
 
   return (
@@ -53,7 +56,9 @@ const DirectMessage = () => {
       <Header>
         <img src={gravatar.url(userData.email, { s: '24px', d: 'retro' })} alt={userData.nickname} />  
       </Header>        
-      <ChatList />
+      {Array.isArray(chatData) && <ChatList 
+        chatData={chatData}
+      />}
       <ChatBox 
         chat={chat}         
         onChangeChat={onChangeChat}
