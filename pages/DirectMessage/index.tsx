@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import gravatar from 'gravatar'
-import { Header } from '@pages/DirectMessage/styles';
+import { Container, Header } from '@pages/DirectMessage/styles';
 import useSWR from 'swr';
 import fetcher from '@utils/fetcher';
 import { IDM, IUser } from '@typings/db';
@@ -52,7 +52,7 @@ const DirectMessage = () => {
   if (!userData || !myData) return null;
 
   return (
-    <div>
+    <Container>
       <Header>
         <img src={gravatar.url(userData.email, { s: '24px', d: 'retro' })} alt={userData.nickname} />  
       </Header>        
@@ -64,7 +64,7 @@ const DirectMessage = () => {
         onChangeChat={onChangeChat}
         onSubmitForm={onSubmitForm}
       />
-    </div>
+    </Container>
   )
 }
 
