@@ -22,7 +22,7 @@ const Chat: React.VFC<Props> = ({ data }) => {
       <div className='chat-text'>
         <div className='chat-user'>
           <b>{user.nickname}</b>
-          <span>{dayjs(createdAt).format(`YYYY.MM.DD`)}</span>
+          <span>{dayjs(createdAt).format(`HH:MM`)}</span>
         </div>
         <p>{content}</p>
       </div>

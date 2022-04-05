@@ -1376,7 +1376,7 @@
 
 "@types/react-mentions@^4.1.5":
   version "4.1.5"
-  resolved "https://registry.npmjs.org/@types/react-mentions/-/react-mentions-4.1.5.tgz"
+  resolved "https://registry.yarnpkg.com/@types/react-mentions/-/react-mentions-4.1.5.tgz#af1413b0152576bc436151600e45588eee9f3b87"
   integrity sha512-sLBHfrudYUdaqgcixPHgghlOBcVR/vwzzZtBcI/8i6fyPKF+axVMu2bgSP5es45UzrTVBlEzfIYC/adrlVrs8w==
   dependencies:
     "@types/react" "*"
@@ -4457,7 +4457,7 @@ react-is@^16.12.0, react-is@^16.13.1, react-is@^16.7.0:
 
 react-mentions@^4.3.1:
   version "4.3.1"
-  resolved "https://registry.npmjs.org/react-mentions/-/react-mentions-4.3.1.tgz"
+  resolved "https://registry.yarnpkg.com/react-mentions/-/react-mentions-4.3.1.tgz#61d292545520465148b2ac8d5f85656e6a0ac9d1"
   integrity sha512-yNq3qpjQ9/kaYIhCgx2D+9h228gMd6sxfbyKUY8TUWLxDr38q0FnNpCga/EhuuGqnVhOt8fb39p0c+xVRRgSpw==
   dependencies:
     "@babel/runtime" "7.4.5"
