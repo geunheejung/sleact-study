@@ -115,7 +115,7 @@ const DirectMessage = () => {
 
   }, [chat, chatData, myData, userData, workspaceName, dmId]);
 
-  const chatSections = makeSection(isChatData ? chatData.flat().reverse() : []);
+  const chatSections = makeSection<IDM>(isChatData ? chatData.flat().reverse() : []);
 
   if (!userData || !myData) return null;
 
@@ -133,6 +133,7 @@ const DirectMessage = () => {
       />}
       <ChatBox 
         chat={chat}         
+        placeholder={'메세지를 입력하세요.'}
         onChangeChat={onChangeChat}
         onSubmitForm={onSubmitForm}
       />

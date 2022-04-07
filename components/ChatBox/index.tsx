@@ -10,12 +10,12 @@ import { useParams } from 'react-router-dom';
 
 interface Props {
   chat: string;
-  // placeholder: string;
+  placeholder: string;
   onSubmitForm: (e: any) => void;
   onChangeChat: (e: any) => void;  
 }
 
-const ChatBox: React.VFC<Props> = ({ chat, onSubmitForm, onChangeChat }) => {
+const ChatBox: React.VFC<Props> = ({ chat, placeholder, onSubmitForm, onChangeChat }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { workspaceName, dmId } = useParams<{workspaceName: string, dmId: string}>(); 
 
@@ -76,7 +76,7 @@ const ChatBox: React.VFC<Props> = ({ chat, onSubmitForm, onChangeChat }) => {
           onChange={onChangeChat}
           onKeyPress={onKeydownChat}          
           inputRef={textareaRef}
-          
+          placeholder={placeholder}
         >
           <Mention
             appendSpaceOnAdd

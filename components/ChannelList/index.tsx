@@ -6,7 +6,7 @@ import { NavLink, useParams } from 'react-router-dom';
 import useSWR from 'swr';
 
 const ChannelList: React.VFC = () => {      
-  const { workspaceName } = useParams<{workspaceName: string}>();
+  const { workspaceName, channelName } = useParams<{workspaceName: string, channelName: string}>();
 
   const { data: userData } = useSWR<IUser>(
     '/api/users', 
@@ -40,15 +40,17 @@ const ChannelList: React.VFC = () => {
       </h2>
       <div>
         {!channelCollapse && (
-          channelData?.map((channel) => (
-            <NavLink
-              key={channel.id}
-              to={`/workspace/${workspaceName}/channel/${channel.name}`}
-              className={({isActive}) => isActive ? 'selected' : undefined} 
-            >
-              <span># {channel.name}</span>
-            </NavLink>
-          ))
+          channelData?.map((channel) => {            
+            return (
+              <NavLink
+                key={channel.id}
+                to={`/workspace/${workspaceName}/channel/${channel.name}`}
+                className={channelName === channel.name ? 'selected' : undefined} 
+              >
+                <span># {channel.name}</span>
+              </NavLink>
+            );
+          })
         )}
       </div>
     </>

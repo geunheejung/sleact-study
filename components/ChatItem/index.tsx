@@ -2,21 +2,21 @@ import React, { memo, useMemo } from 'react';
 import gravatar from 'gravatar';
 import dayjs from 'dayjs';
 import regexifyString from 'regexify-string';
-import { IDM } from '@typings/db';
+import { IChat, IDM } from '@typings/db';
 import { ChatWrapper } from './styles';
 import { Link, useParams } from 'react-router-dom';
 
 interface Props {
-  data: IDM;
+  data: IDM | IChat;
 }
 
 const Chat: React.VFC<Props> = ({ data }) => {
   const { 
     content, 
-    createdAt, 
-    Sender: user,     
+    createdAt,          
   } = data;
-  const { workspaceName, dmId } = useParams<{workspaceName: string, dmId: string}>(); 
+  const user = 'Sender' in data ? data.Sender : data.User;
+  const { workspaceName } = useParams<{workspaceName: string, dmId: string}>(); 
   
   const result = useMemo(() => {
     const decorator = (match: string, index: number) => {
