@@ -1,4 +1,4 @@
-import React, { useCallback, forwardRef } from 'react';
+import React, { useCallback, forwardRef, MutableRefObject } from 'react';
 import { positionValues, Scrollbars } from 'react-custom-scrollbars';
 import { ChatZone, Section, StickyHeader } from '@components/ChatList/styles';
 import { IDM } from '@typings/db';
@@ -17,11 +17,15 @@ const ChatList = forwardRef<Scrollbars, Props>(({
   isEmpty,
   isReachingEnd,
 }, ref) => {   
-  const onScroll = useCallback((values: positionValues) => {    
-    if (values.scrollTop === 0 && !isReachingEnd) {      
+  const onScroll = useCallback((values: positionValues) => {        
+    if (values.scrollTop === 0 && !isReachingEnd) {            
       setSize((prevSize: number) => prevSize + 1)
       .then(() => {
-        // 스크롤 위치 유지
+        const current = (ref as MutableRefObject<Scrollbars>)?.current;
+        // 페이지 늘어날 시 스크롤 위치 유지
+        if (current) {          
+          current.scrollTop(current.getScrollHeight() - values.scrollHeight); // 현재 스크롤 위치의 height인듯. 스크롤의 최대높이 - 현재 스크롤의 높이 즉 늘어난 만큼 
+        }
       });
     }
   }, []);

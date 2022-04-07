@@ -52,7 +52,7 @@ const DirectMessage = () => {
   const optimistic = () => {
     const savedChat = chat;
     mutateChat((prevChatData) => {
-      if (userData && myData) prevChatData?.[0].unshift(getMockChatData(savedChat, userData, myData));      
+      if (userData && myData) prevChatData?.[0].unshift(getMockChatData(chat, userData, myData));      
       return prevChatData;     
     }, false)
       .then(() => {
@@ -62,7 +62,7 @@ const DirectMessage = () => {
 
   const onSubmitForm = useCallback((e) => {
     e.preventDefault();     
-    optimistic();
+    // optimistic();
     
     axios.post(`/api/workspaces/${workspaceName}/dms/${dmId}/chats`, {
       content: chat,
