@@ -13,6 +13,7 @@ import axios from 'axios';
 import makeSection from '@utils/makeSection';
 import Scrollbars from 'react-custom-scrollbars';
 import getMockChatData from '@utils/getChatMockData';
+import useSocket from '@hooks/useSocket';
 
 const DirectMessage = () => {
   const { workspaceName, dmId } = useParams<{workspaceName: string, dmId: string}>(); 
@@ -41,7 +42,44 @@ const DirectMessage = () => {
       return `${base}?${perPage}&${page}`;
     }, 
     fetcher
-  );  
+  ); 
+  
+  const [socket] = useSocket(workspaceName);
+
+  const onMessage = useCallback((data: IDM) => {    
+    // id는 상대방 아이디
+    if (data.SenderId === Number(dmId) && myData?.id !== Number(dmId)) {
+      mutateChat((_chatData) => {
+        _chatData?.[0].unshift(data);
+        return _chatData;
+      }, false).then(() => {
+        if (scrollBarRef.current) {
+          if (  
+            scrollBarRef.current.getScrollHeight() < 
+            scrollBarRef.current.getClientHeight() + scrollBarRef.current.getScrollTop() + 150
+          ) {
+            scrollBarRef.current.scrollToBottom();
+          }
+        }        
+      })      
+    }
+  }, []);
+
+  useEffect(() => {
+    if (chatData?.length === 1) {
+      scrollToBottom();
+    } 
+  }, [chatData, ])
+
+  useEffect(() => {
+    socket?.on('dm', onMessage);
+  
+    return () => {
+      socket?.off('dm', onMessage);
+    }
+  }, [socket, dmId, myData])
+  
+
 
   const scrollToBottom = () => { scrollBarRef.current?.scrollToBottom(); };
 
@@ -62,7 +100,7 @@ const DirectMessage = () => {
 
   const onSubmitForm = useCallback((e) => {
     e.preventDefault();     
-    // optimistic();
+    optimistic();
     
     axios.post(`/api/workspaces/${workspaceName}/dms/${dmId}/chats`, {
       content: chat,
@@ -78,12 +116,6 @@ const DirectMessage = () => {
   }, [chat, chatData, myData, userData, workspaceName, dmId]);
 
   const chatSections = makeSection(isChatData ? chatData.flat().reverse() : []);
-
-  useEffect(() => {
-    if (chatData?.length === 1) {
-      scrollToBottom();
-    } 
-  }, [chatData, ])
 
   if (!userData || !myData) return null;
 

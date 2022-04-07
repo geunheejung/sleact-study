@@ -24,11 +24,12 @@ const ChatList = forwardRef<Scrollbars, Props>(({
         const current = (ref as MutableRefObject<Scrollbars>)?.current;
         // 페이지 늘어날 시 스크롤 위치 유지
         if (current) {          
+                
           current.scrollTop(current.getScrollHeight() - values.scrollHeight); // 현재 스크롤 위치의 height인듯. 스크롤의 최대높이 - 현재 스크롤의 높이 즉 늘어난 만큼 
         }
       });
     }
-  }, []);
+  }, []); 
    
   return (
     <ChatZone>
