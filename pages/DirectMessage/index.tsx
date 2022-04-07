@@ -1,7 +1,7 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import gravatar from 'gravatar'
 import { Container, Header } from '@pages/DirectMessage/styles';
-import useSWR from 'swr';
+import useSWR, { mutate } from 'swr';
 import useSWRInfinite from 'swr/infinite'
 import fetcher from '@utils/fetcher';
 import { IDM, IUser } from '@typings/db';
@@ -12,16 +12,19 @@ import useInput from '@hooks/useInput';
 import axios from 'axios';
 import makeSection from '@utils/makeSection';
 import Scrollbars from 'react-custom-scrollbars';
+import getMockChatData from '@utils/getChatMockData';
 
 const DirectMessage = () => {
   const { workspaceName, dmId } = useParams<{workspaceName: string, dmId: string}>(); 
   
   const scrollBarRef = useRef<Scrollbars>(null);
+
+  const [ chat, onChangeChat, setChat ] = useInput('');
   
-  const { data: userData } = useSWR(
+  const { data: userData } = useSWR<IUser>(
     `/api/workspaces/${workspaceName}/users/${dmId}`,
     fetcher
-  )
+  );
   const { data: myData, mutate: userMutate } = useSWR<IUser>(
     '/api/users', 
     fetcher
@@ -40,28 +43,47 @@ const DirectMessage = () => {
     fetcher
   );  
 
+  const scrollToBottom = () => { scrollBarRef.current?.scrollToBottom(); };
+
   const isChatData = Array.isArray(chatData);
   const isEmpty = chatData?.[0]?.length === 0; 
   const isReachingEnd = isEmpty || !!(isChatData && chatData[chatData.length - 1]?.length < PAGE_SIZE);
-  
-  const [ chat, onChangeChat, setChat ] = useInput('');
+
+  const optimistic = () => {
+    const savedChat = chat;
+    mutateChat((prevChatData) => {
+      if (userData && myData) prevChatData?.[0].unshift(getMockChatData(savedChat, userData, myData));      
+      return prevChatData;     
+    }, false)
+      .then(() => {
+        scrollToBottom();    
+      });
+  };
 
   const onSubmitForm = useCallback((e) => {
     e.preventDefault();     
+    optimistic();
+    
     axios.post(`/api/workspaces/${workspaceName}/dms/${dmId}/chats`, {
       content: chat,
     })
     .then(() => {
       mutateChat();
-      setChat(''); 
+      setChat('');   
     })
     .catch(err => {
       console.log(err);
     });
 
-  }, [chat]);
+  }, [chat, chatData, myData, userData, workspaceName, dmId]);
 
   const chatSections = makeSection(isChatData ? chatData.flat().reverse() : []);
+
+  useEffect(() => {
+    if (chatData?.length === 1) {
+      scrollToBottom();
+    } 
+  }, [chatData, ])
 
   if (!userData || !myData) return null;
 
